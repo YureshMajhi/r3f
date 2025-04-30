@@ -8,6 +8,7 @@ import {
   useHelper,
 } from "@react-three/drei";
 import { DirectionalLightHelper } from "three";
+import { useControls } from "leva";
 
 const Cube = ({ position, size, color }) => {
   const ref = useRef();
@@ -67,8 +68,17 @@ const Torus = ({ position, size, color }) => {
   );
 };
 
-const TorusKnot = ({ position, size, color }) => {
+const TorusKnot = ({ position, size }) => {
   const ref = useRef();
+  const { color, radius } = useControls({
+    color: "green",
+    radius: {
+      value: 5,
+      min: 1,
+      max: 10,
+      step: 1,
+    },
+  });
 
   // useFrame((state, delta) => {
   //   ref.current.rotation.x += delta;
@@ -78,9 +88,9 @@ const TorusKnot = ({ position, size, color }) => {
 
   return (
     <mesh position={position} ref={ref}>
-      <torusKnotGeometry args={size} />
+      <torusKnotGeometry args={[radius, ...size]} />
       {/* <meshStandardMaterial color={color} /> */}
-      <MeshWobbleMaterial factor={1} speed={5} />
+      <MeshWobbleMaterial factor={1} speed={5} color={color} />
       {/* <MeshDistortMaterial distort={1} speed={10} /> */}
     </mesh>
   );
@@ -90,14 +100,29 @@ const Scene = () => {
   const directionalLightRef = useRef();
 
   useHelper(directionalLightRef, DirectionalLightHelper, 0.5, "white");
+
+  const { lightColor, lightIntensity } = useControls({
+    lightColor: "white",
+    lightIntensity: {
+      value: 0.6,
+      min: 0,
+      max: 5,
+      step: 0.5,
+    },
+  });
   return (
     <>
-      <directionalLight position={[0, 0, 2]} intensity={0.6} ref={directionalLightRef} />
+      <directionalLight
+        color={lightColor}
+        position={[0, 0, 2]}
+        intensity={lightIntensity}
+        ref={directionalLightRef}
+      />
       <ambientLight intensity={0.2} />
       {/* <Cube position={[0, 0, 0]} size={[1, 1, 1]} color={"blue"} /> */}
       {/* <Sphere position={[0, 2, 0]} size={[1, 30, 30]} color={"brown"} /> */}
       {/* {/* <Torus position={[0, -2, 0]} size={[0.8, 0.1, 30, 30]} color={"red"} /> */}
-      <TorusKnot position={[0, 0, 0]} size={[1, 0.1, 1000, 50]} color={"pink"} />
+      <TorusKnot position={[0, 0, 0]} size={[0.1, 1000, 50]} color={"pink"} />
       <OrbitControls enableZoom={false} />
 
       {/* <group position={[1, 0, 0]}>
