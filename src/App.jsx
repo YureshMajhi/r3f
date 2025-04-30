@@ -1,6 +1,13 @@
 import { useRef, useState } from "react";
 import "./App.css";
 import { Canvas, useFrame } from "@react-three/fiber";
+import {
+  MeshDistortMaterial,
+  MeshWobbleMaterial,
+  OrbitControls,
+  useHelper,
+} from "@react-three/drei";
+import { DirectionalLightHelper } from "three";
 
 const Cube = ({ position, size, color }) => {
   const ref = useRef();
@@ -63,36 +70,50 @@ const Torus = ({ position, size, color }) => {
 const TorusKnot = ({ position, size, color }) => {
   const ref = useRef();
 
-  useFrame((state, delta) => {
-    ref.current.rotation.x += delta;
-    ref.current.rotation.y += delta;
-    ref.current.position.z = Math.sin(state.clock.elapsedTime) * 2;
-  });
+  // useFrame((state, delta) => {
+  //   ref.current.rotation.x += delta;
+  //   ref.current.rotation.y += delta;
+  //   ref.current.position.z = Math.sin(state.clock.elapsedTime) * 2;
+  // });
 
   return (
     <mesh position={position} ref={ref}>
       <torusKnotGeometry args={size} />
-      <meshStandardMaterial color={color} />
+      {/* <meshStandardMaterial color={color} /> */}
+      <MeshWobbleMaterial factor={1} speed={5} />
+      {/* <MeshDistortMaterial distort={1} speed={10} /> */}
     </mesh>
   );
 };
 
-const App = () => {
+const Scene = () => {
+  const directionalLightRef = useRef();
+
+  useHelper(directionalLightRef, DirectionalLightHelper, 0.5, "white");
   return (
-    <Canvas>
-      <directionalLight position={[0, 0, 2]} intensity={0.6} />
-      <ambientLight intensity={0.4} />
+    <>
+      <directionalLight position={[0, 0, 2]} intensity={0.6} ref={directionalLightRef} />
+      <ambientLight intensity={0.2} />
       {/* <Cube position={[0, 0, 0]} size={[1, 1, 1]} color={"blue"} /> */}
-      <Sphere position={[0, 2, 0]} size={[1, 30, 30]} color={"brown"} />
-      {/* <Torus position={[0, -2, 0]} size={[0.8, 0.1, 30, 30]} color={"red"} />
-      <TorusKnot position={[-2, 0, 0]} size={[0.5, 0.1, 1000, 50]} color={"pink"} /> */}
+      {/* <Sphere position={[0, 2, 0]} size={[1, 30, 30]} color={"brown"} /> */}
+      {/* {/* <Torus position={[0, -2, 0]} size={[0.8, 0.1, 30, 30]} color={"red"} /> */}
+      <TorusKnot position={[0, 0, 0]} size={[1, 0.1, 1000, 50]} color={"pink"} />
+      <OrbitControls enableZoom={false} />
 
       {/* <group position={[1, 0, 0]}>
         <Cube position={[1, 0, 0]} color={"orange"} size={[1, 1, 1]} />
         <Cube position={[-1, 0, 0]} color={"pink"} size={[1, 1, 1]} />
         <Cube position={[-1, 2, 0]} color={"yellow"} size={[1, 1, 1]} />
         <Cube position={[1, 2, 0]} color={"red"} size={[1, 1, 1]} />
-      </group> */}
+        </group> */}
+    </>
+  );
+};
+
+const App = () => {
+  return (
+    <Canvas>
+      <Scene />
     </Canvas>
   );
 };
